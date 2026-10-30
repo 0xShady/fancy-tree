@@ -20,9 +20,9 @@ int main()
     root->_left->_left->_right->_left = new Node<int>(12);
 
     // construct and object of type FancyTree
-    fancy_tree<Node<int> > tree; 
+    fancy::tree<Node<int> > tree; 
     // to print in a vrtical view (root on the top mid of the tree)
-    tree.print_tree(root, V_VIEW);
+    tree.print_tree(root, fancy::V_VIEW);
     // to print in a horizontal view (root on the left mid of the tree)
-    tree.print_tree(root, H_VIEW);
+    tree.print_tree(root, fancy::H_VIEW);
 }
