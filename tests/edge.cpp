@@ -14,18 +14,18 @@ int main()
 	right._left = &right_left;
 	right._right = &right_right;
 
-	fancy_tree<Node<std::string> > strings;
-	strings.print_tree(&root, V_VIEW);
-	strings.print_tree(&root, H_VIEW);
+	fancy::tree<Node<std::string> > strings;
+	strings.print_tree(&root, fancy::V_VIEW);
+	strings.print_tree(&root, fancy::H_VIEW);
 
 	Node<double> single(-3.25);
-	fancy_tree<Node<double> > doubles;
-	doubles.print_tree(&single, V_VIEW);
-	doubles.print_tree(nullptr, V_VIEW);
+	fancy::tree<Node<double> > doubles;
+	doubles.print_tree(&single, fancy::V_VIEW);
+	doubles.print_tree(nullptr, fancy::V_VIEW);
 
 	Node<int> big(-12345678);
 	Node<int> zero(0);
 	big._left = &zero;
-	fancy_tree<Node<int> > ints;
-	ints.print_tree(&big, V_VIEW);
+	fancy::tree<Node<int> > ints;
+	ints.print_tree(&big, fancy::V_VIEW);
 }
