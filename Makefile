@@ -14,6 +14,6 @@ test: example edge
 	@echo "ok"
 
 clean:
-	rm -f example edge
+	rm -rf example edge *.dSYM
 
 .PHONY: test clean
