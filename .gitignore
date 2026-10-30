@@ -4,6 +4,7 @@
 *.out
 *log*
 .vscode
-tests/*
-tests
 *.bat
+example
+edge
+*.dSYM
