@@ -1,9 +1,13 @@
 #pragma once
 
+#include <cstdlib>
 #include <string>
 #include <sstream>
 #include <iostream>
 #include <vector>
+#if defined(__unix__) || defined(__APPLE__)
+# include <unistd.h>
+#endif
 
 // Node field names, override them before including this header
 #ifndef FANCY_TREE_LEFT
@@ -14,6 +18,9 @@
 #endif
 #ifndef FANCY_TREE_VALUE
 # define FANCY_TREE_VALUE _value
+#endif
+#if defined(FANCY_TREE_COLOR) && !defined(FANCY_TREE_RED)
+# error "FANCY_TREE_COLOR needs FANCY_TREE_RED: the value of that member that means red"
 #endif
 
 // horizontal view TRUNKS
@@ -49,7 +56,30 @@ class tree
 			LEVEL_ROWS = 4
 		};
 
-		typedef std::vector<std::vector<std::string> >  Canvas;
+		struct  Cell
+		{
+			std::string glyph;
+			bool        red;
+
+			Cell() : glyph(" "), red(false) {}
+		};
+
+		typedef std::vector<std::vector<Cell> >  Canvas;
+
+		struct  Box
+		{
+			const char *top_left;
+			const char *top_right;
+			const char *bottom_left;
+			const char *bottom_right;
+			const char *across;
+			const char *side;
+			const char *left_joint;
+			const char *right_joint;
+			const char *top_joint;
+		};
+
+		bool    _colour;
 
 		/*===================Branch===================*/
 
@@ -105,7 +135,53 @@ class tree
 			return label;
 		}
 
+		/*===================Red/black===================*/
+
+		bool    is_red(const Node *node) const
+		{
+#ifdef FANCY_TREE_COLOR
+			return node->FANCY_TREE_COLOR == FANCY_TREE_RED;
+#else
+			(void)node;
+			return false;
+#endif
+		}
+
+		// NO_COLOR turns colours off, CLICOLOR_FORCE turns them on when piped
+		static bool colour_wanted()
+		{
+			const char *off = std::getenv("NO_COLOR");
+			if (off && *off)
+				return false;
+			const char *force = std::getenv("CLICOLOR_FORCE");
+			if (force && *force && std::string(force) != "0")
+				return true;
+#if defined(__unix__) || defined(__APPLE__)
+			return isatty(STDOUT_FILENO) == 1;
+#else
+			return false;
+#endif
+		}
+
+		const Box   &box(const Node *node) const
+		{
+			static const Box single = {"┌", "┐", "└", "┘", "─", "│", "┤", "├", "┴"};
+			static const Box twin = {"╔", "╗", "╚", "╝", "═", "║", "╢", "╟", "╧"};
+			return is_red(node) && !_colour ? twin : single;
+		}
+
 		/*===================Horizontal view===================*/
+
+		void    print_value(const Node *node) const
+		{
+			if (!is_red(node))
+				std::cout << node->FANCY_TREE_VALUE;
+			else if (_colour)
+				std::cout << "\033[31m" << node->FANCY_TREE_VALUE << "\033[0m";
+			else
+				std::cout << node->FANCY_TREE_VALUE << " (red)";
+		}
+
 
 		// print horizontal view of a tree
 		void    showbranches(Branch *p)
@@ -144,7 +220,8 @@ class tree
 				prev->str = prev_str;
 			}
 			showbranches(&branch);
-			std::cout << root->FANCY_TREE_VALUE << std::endl;
+			print_value(root);
+			std::cout << std::endl;
 			if (prev)
 				prev->str = prev_str;
 			branch.str = BIG_TRUNK;
@@ -157,49 +234,53 @@ class tree
 		void    draw_line(Canvas &canvas, int y, int from, int to, const char *glyph) const
 		{
 			for (int x = from; x <= to; x++)
-				canvas[y][x] = glyph;
+				canvas[y][x].glyph = glyph;
 		}
 
 		// draw a node box at (y, x) and the branches to its children
 		void    draw_node(Canvas &canvas, const Node *node, int y, int x, int half_gap) const
 		{
 			std::vector<std::string> label = box_label(node);
+			const Box &style = box(node);
 			int right = x + BOX_WIDTH - 1;
 
-			canvas[y][x] = "┌";
-			draw_line(canvas, y, x + 1, right - 1, "─");
-			canvas[y][right] = "┐";
-			canvas[y + 1][x] = "│";
+			canvas[y][x].glyph = style.top_left;
+			draw_line(canvas, y, x + 1, right - 1, style.across);
+			canvas[y][right].glyph = style.top_right;
+			canvas[y + 1][x].glyph = style.side;
 			for (int i = 0; i < VALUE_WIDTH; i++)
-				canvas[y + 1][x + 1 + i] = label[i];
-			canvas[y + 1][right] = "│";
-			canvas[y + 2][x] = "└";
-			draw_line(canvas, y + 2, x + 1, right - 1, "─");
-			canvas[y + 2][right] = "┘";
+				canvas[y + 1][x + 1 + i].glyph = label[i];
+			canvas[y + 1][right].glyph = style.side;
+			canvas[y + 2][x].glyph = style.bottom_left;
+			draw_line(canvas, y + 2, x + 1, right - 1, style.across);
+			canvas[y + 2][right].glyph = style.bottom_right;
+			for (int row = y; row < y + 3; row++)
+				for (int col = x; col <= right; col++)
+					canvas[row][col].red = _colour && is_red(node);
 
 			if (node->FANCY_TREE_LEFT != nullptr)
 			{
 				int child = x - half_gap;
 				int joint = child + (BOX_WIDTH - 1) / 2;
 				draw_node(canvas, node->FANCY_TREE_LEFT, y + LEVEL_ROWS, child, half_gap / 2);
-				canvas[y + 1][x] = "┤";
+				canvas[y + 1][x].glyph = style.left_joint;
 				draw_line(canvas, y + 1, joint + 1, x - 1, "─");
-				canvas[y + 1][joint] = "┌";
+				canvas[y + 1][joint].glyph = "┌";
 				draw_line(canvas, y + 2, joint, joint, "│");
 				draw_line(canvas, y + 3, joint, joint, "│");
-				canvas[y + LEVEL_ROWS][joint] = "┴";
+				canvas[y + LEVEL_ROWS][joint].glyph = box(node->FANCY_TREE_LEFT).top_joint;
 			}
 			if (node->FANCY_TREE_RIGHT != nullptr)
 			{
 				int child = x + half_gap;
 				int joint = child + BOX_WIDTH / 2;
 				draw_node(canvas, node->FANCY_TREE_RIGHT, y + LEVEL_ROWS, child, half_gap / 2);
-				canvas[y + 1][right] = "├";
+				canvas[y + 1][right].glyph = style.right_joint;
 				draw_line(canvas, y + 1, right + 1, joint - 1, "─");
-				canvas[y + 1][joint] = "┐";
+				canvas[y + 1][joint].glyph = "┐";
 				draw_line(canvas, y + 2, joint, joint, "│");
 				draw_line(canvas, y + 3, joint, joint, "│");
-				canvas[y + LEVEL_ROWS][joint] = "┴";
+				canvas[y + LEVEL_ROWS][joint].glyph = box(node->FANCY_TREE_RIGHT).top_joint;
 			}
 		}
 
@@ -210,29 +291,42 @@ class tree
 			int width = leafs * LEAF_PITCH - LEAFS_SPAN;
 			int rows = height * LEVEL_ROWS + 3;
 			int half_gap = leafs * LEAF_PITCH / 4;
-			Canvas canvas(rows, std::vector<std::string>(width, " "));
+			Canvas canvas(rows, std::vector<Cell>(width));
 
 			draw_node(canvas, root, 0, (leafs - 1) * LEAF_PITCH / 2, half_gap);
 			for (int y = 0; y < rows; y++)
 			{
 				int end = width;
-				while (end > 0 && canvas[y][end - 1] == " ")
+				bool red = false;
+				while (end > 0 && canvas[y][end - 1].glyph == " ")
 					end--;
 				for (int x = 0; x < end; x++)
-					std::cout << canvas[y][x];
+				{
+					if (canvas[y][x].red != red)
+					{
+						red = canvas[y][x].red;
+						std::cout << (red ? "\033[31m" : "\033[0m");
+					}
+					std::cout << canvas[y][x].glyph;
+				}
+				if (red)
+					std::cout << "\033[0m";
 				std::cout << std::endl;
 			}
 		}
 
 	public:
 		//constructor
-		tree(){};
+		tree() : _colour(false) {};
 		//destructor
 		~tree(){};
 
 		//main function to call
 		void print_tree(const Node *root, view flags)
 		{
+#ifdef FANCY_TREE_COLOR
+			_colour = colour_wanted();
+#endif
 			std::cout << std::endl;
 			if (!root)
 			{

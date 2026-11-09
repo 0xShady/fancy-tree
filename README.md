@@ -60,6 +60,47 @@ fancy::tree<my_node> tree;
 
 Any value type works as long as it can be printed with `operator<<` (numbers, `std::string`, your own types). In the vertical view values get 6 characters; longer values are cut and end with `…`. The horizontal view always prints the full value.
 
+### Red-black trees
+
+Name the member that holds the colour and the value that means red, and red nodes are drawn in red:
+
+```c++
+#define FANCY_TREE_COLOR _color   // the member: an enum, a bool, a char...
+#define FANCY_TREE_RED RED        // the value that means red: RED, true, 'R'...
+#include "fancy_tree.hpp"
+```
+
+When the output is not a terminal (piped to a file or `less`), or `NO_COLOR` is set, red nodes get double-line boxes in the vertical view and `(red)` in the horizontal view. Set `CLICOLOR_FORCE=1` to keep the colours when piping, for example to `less -R`. Nodes 1 to 10 inserted in order, from `tests/rb.cpp`, without colours:
+
+```log
+                ┌──┤10 (red)
+            ┌──┤9
+        ┌──┤8 (red)
+        │   └──┤7
+    ┌──┤6
+    │   └──┤5
+──┤4
+    │   ┌──┤3
+    └──┤2
+        └──┤1
+```
+
+And a node with a `bool is_red` member (`tests/rb_bool.cpp`) in the vertical view:
+
+```log
+               ┌──────┐
+        ┌──────┤mango ├──────┐
+        │      └──────┘      │
+        │                    │
+     ╔══╧═══╗            ╔═══╧══╗
+     ║apple ╟─┐          ║zucch…║
+     ╚══════╝ │          ╚══════╝
+              │
+          ┌───┴──┐
+          │ kiwi │
+          └──────┘
+```
+
 ## Output
 
 The tree built in `src/test.cpp`:
@@ -115,7 +156,7 @@ make test      # builds with -Wall -Wextra -Werror and compares the output with 
 make example   # builds src/test.cpp
 ```
 
-If you change the drawing on purpose, regenerate the expected output with `make example edge && ./example > tests/example.txt && ./edge > tests/edge.txt`. Record the gif again with [vhs](https://github.com/charmbracelet/vhs): `vhs assets/sample.tape`.
+If you change the drawing on purpose, regenerate the expected output with `make example edge rb rb_bool && ./example > tests/example.txt && ./edge > tests/edge.txt && ./rb > tests/rb.txt && CLICOLOR_FORCE=1 ./rb > tests/rb_colour.txt && ./rb_bool > tests/rb_bool.txt`. Record the gif again with [vhs](https://github.com/charmbracelet/vhs): `vhs assets/sample.tape`.
 
 ## License
 
