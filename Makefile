@@ -1,6 +1,6 @@
 CXX      = c++
 CXXFLAGS ?= -std=c++11 -Wall -Wextra -Werror
-HEADERS  = src/fancy_tree.hpp src/test.hpp
+HEADERS  = src/fancy_tree.hpp src/test.hpp tests/rb_tree.hpp
 PLAIN    = env -u CLICOLOR_FORCE -u NO_COLOR
 COLOUR   = env -u NO_COLOR CLICOLOR_FORCE=1
 
