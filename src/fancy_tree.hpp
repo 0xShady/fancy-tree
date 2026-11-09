@@ -16,10 +16,6 @@
 # define FANCY_TREE_VALUE _value
 #endif
 
-// Flags
-#define H_VIEW 0x00             // for Horizontal view
-#define V_VIEW 0x01             // for Vertical view
-
 // horizontal view TRUNKS
 #define BIG_TRUNK "    │"
 #define SMALL_TRUNK "   │"
@@ -29,8 +25,17 @@
 #define SMALL_SPAN "   "
 #define ROOT_TRUNK "──┤"
 
+namespace fancy
+{
+
+enum view
+{
+	H_VIEW,
+	V_VIEW
+};
+
 template <typename Node>
-class fancy_tree
+class tree
 {
 
 	private:
@@ -221,12 +226,12 @@ class fancy_tree
 
 	public:
 		//constructor
-		fancy_tree(){};
+		tree(){};
 		//destructor
-		~fancy_tree(){};
+		~tree(){};
 
 		//main function to call
-		void print_tree(const Node *root, int flags)
+		void print_tree(const Node *root, view flags)
 		{
 			std::cout << std::endl;
 			if (!root)
@@ -242,6 +247,8 @@ class fancy_tree
 		}
 
 };
+
+}
 
 #undef BIG_TRUNK
 #undef SMALL_TRUNK

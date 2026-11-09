@@ -36,9 +36,9 @@ class Node {
 #include "test.hpp"
 #include "fancy_tree.hpp"
 
-fancy_tree<Node<int> > tree;
-tree.print_tree(root, V_VIEW);  // vertical view, root on the top
-tree.print_tree(root, H_VIEW);  // horizontal view, root on the left
+fancy::tree<Node<int> > tree;
+tree.print_tree(root, fancy::V_VIEW);  // vertical view, root on the top
+tree.print_tree(root, fancy::H_VIEW);  // horizontal view, root on the left
 ```
 
 If your node uses other member names, define them before the include:
@@ -55,7 +55,7 @@ struct my_node {
 #define FANCY_TREE_VALUE key
 #include "fancy_tree.hpp"
 
-fancy_tree<my_node> tree;
+fancy::tree<my_node> tree;
 ```
 
 Any value type works as long as it can be printed with `operator<<` (numbers, `std::string`, your own types). In the vertical view values get 6 characters; longer values are cut and end with `…`. The horizontal view always prints the full value.
@@ -64,7 +64,7 @@ Any value type works as long as it can be printed with `operator<<` (numbers, `s
 
 The tree built in `src/test.cpp`:
 
-* Vertical view `print_tree(root, V_VIEW);`
+* Vertical view `print_tree(root, fancy::V_VIEW);`
 
 ```log
                                                                            ┌──────┐
@@ -88,7 +88,7 @@ The tree built in `src/test.cpp`:
                     └──────┘
 ```
 
-* Horizontal view `print_tree(root, H_VIEW);`
+* Horizontal view `print_tree(root, fancy::H_VIEW);`
 
 ```log
             ┌──┤89
