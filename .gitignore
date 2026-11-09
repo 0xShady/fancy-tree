@@ -8,3 +8,5 @@
 example
 edge
 *.dSYM
+rb
+rb_bool
