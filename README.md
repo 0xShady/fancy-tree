@@ -115,7 +115,7 @@ make test      # builds with -Wall -Wextra -Werror and compares the output with 
 make example   # builds src/test.cpp
 ```
 
-If you change the drawing on purpose, regenerate the expected output with `make example edge && ./example > tests/example.txt && ./edge > tests/edge.txt`.
+If you change the drawing on purpose, regenerate the expected output with `make example edge && ./example > tests/example.txt && ./edge > tests/edge.txt`. Record the gif again with [vhs](https://github.com/charmbracelet/vhs): `vhs assets/sample.tape`.
 
 ## License
 
