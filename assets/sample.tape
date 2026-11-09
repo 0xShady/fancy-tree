@@ -1,18 +1,24 @@
 Output assets/sample.gif
 
+Set FontSize 14
+Set Width 1600
+Set Height 790
 Set Shell "bash"
-Set FontSize 13
-Set Width 1500
-Set Height 680
-Set Padding 20
-Set TypingSpeed 50ms
+Set Theme "Catppuccin Mocha"
+Set FontFamily "Menlo"
+Set Padding 24
+Set WindowBar Colorful
+Set BorderRadius 10
+Set Margin 20
+Set MarginFill "#181825"
+Set TypingSpeed 40ms
 
 Hide
-Type "make -s example && clear"
+Type `d=$(mktemp -d) && make -s example && c++ -std=c++11 -Isrc -Itests assets/demo/rb_steps.cpp -o $d/rb_steps && cp example $d/ && cd $d && export PS1="\[\e[38;5;117m\]$ \[\e[0m\]" && clear`
 Enter
 Show
 
 Type "./example"
-Sleep 500ms
+Sleep 400ms
 Enter
-Sleep 4s
+Sleep 5s
