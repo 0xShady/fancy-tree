@@ -7,10 +7,11 @@ COLOUR   = env -u NO_COLOR CLICOLOR_FORCE=1
 example: src/test.cpp $(HEADERS)
 	$(CXX) $(CXXFLAGS) src/test.cpp -o $@
 
-edge rb rb_bool: %: tests/%.cpp $(HEADERS)
+edge rb rb_bool dot_export: %: tests/%.cpp $(HEADERS)
 	$(CXX) $(CXXFLAGS) -Isrc $< -o $@
 
-test: example edge rb rb_bool
+test: example edge rb rb_bool dot_export
+	./dot_export | diff -u tests/dot_export.txt -
 	./example | diff -u tests/example.txt -
 	./edge | diff -u tests/edge.txt -
 	$(PLAIN) ./rb | diff -u tests/rb.txt -
@@ -21,6 +22,11 @@ test: example edge rb rb_bool
 	@echo "ok"
 
 clean:
-	rm -rf example edge rb rb_bool *.dSYM
+	rm -rf example edge rb rb_bool dot_export *.dSYM
 
-.PHONY: test clean
+graphviz: rb dot_export
+	./dot_export | dot -Tsvg > /dev/null
+	$(PLAIN) ./rb | sed -n '/^digraph/,$$p' | dot -Tsvg > /dev/null
+	@echo "graphviz ok"
+
+.PHONY: test clean graphviz

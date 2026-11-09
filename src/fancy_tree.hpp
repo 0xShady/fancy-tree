@@ -315,6 +315,69 @@ class tree
 			}
 		}
 
+		/*===================DOT export===================*/
+
+		static std::string dot_escape(const std::string &str)
+		{
+			std::string out;
+			for (size_t i = 0; i < str.size(); i++)
+			{
+				if (str[i] == '"' || str[i] == '\\')
+					out += '\\';
+				if (str[i] == '\n')
+					out += "\\n";
+				else
+					out += str[i];
+			}
+			return out;
+		}
+
+		std::string dot_style(const Node *node) const
+		{
+#ifdef FANCY_TREE_COLOR
+			if (is_red(node))
+				return ", style=filled, fillcolor=\"#c62828\", fontcolor=white";
+			return ", style=filled, fillcolor=\"#212121\", fontcolor=white";
+#else
+			(void)node;
+			return "";
+#endif
+		}
+
+		void    dot_gap(std::ostream &out, int parent, int &next, const char *size) const
+		{
+			int gap = next++;
+			out << "\tn" << gap << " [label=\"\", style=invis, " << size << "];\n";
+			out << "\tn" << parent << " -> n" << gap << " [style=invis];\n";
+		}
+
+		// invisible nodes keep the parent centred and a lone child on its side
+		int     dot_node(std::ostream &out, const Node *node, int &next) const
+		{
+			int id = next++;
+			std::ostringstream value;
+
+			value << node->FANCY_TREE_VALUE;
+			out << "\tn" << id << " [label=\"" << dot_escape(value.str()) << "\"" << dot_style(node) << "];\n";
+			if (!node->FANCY_TREE_LEFT && !node->FANCY_TREE_RIGHT)
+				return id;
+			dot_child(out, id, node->FANCY_TREE_LEFT, next);
+			dot_gap(out, id, next, "width=0.1");
+			dot_child(out, id, node->FANCY_TREE_RIGHT, next);
+			return id;
+		}
+
+		void    dot_child(std::ostream &out, int parent, const Node *child, int &next) const
+		{
+			if (!child)
+			{
+				dot_gap(out, parent, next, "width=0.6");
+				return;
+			}
+			int id = dot_node(out, child, next);
+			out << "\tn" << parent << " -> n" << id << ";\n";
+		}
+
 	public:
 		//constructor
 		tree() : _colour(false) {};
@@ -338,6 +401,19 @@ class tree
 			else if (flags == H_VIEW)
 				print_tree_horizontal_view(root, nullptr, false);
 			std::cout << std::endl;
+		}
+
+		// Graphviz DOT, render with: dot -Tpng tree.dot -o tree.png
+		void print_dot(const Node *root, std::ostream &out = std::cout) const
+		{
+			int next = 0;
+
+			out << "digraph tree {\n";
+			out << "\tgraph [ordering=out];\n";
+			out << "\tnode [shape=box, fontname=\"monospace\"];\n";
+			if (root)
+				dot_node(out, root, next);
+			out << "}\n";
 		}
 
 };

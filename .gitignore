@@ -10,3 +10,4 @@ edge
 *.dSYM
 rb
 rb_bool
+dot_export

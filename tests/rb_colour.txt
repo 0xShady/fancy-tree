@@ -31,3 +31,38 @@
     └──┤2
         └──┤1
 
+digraph tree {
+	graph [ordering=out];
+	node [shape=box, fontname="monospace"];
+	n0 [label="4", style=filled, fillcolor="#212121", fontcolor=white];
+	n1 [label="2", style=filled, fillcolor="#212121", fontcolor=white];
+	n2 [label="1", style=filled, fillcolor="#212121", fontcolor=white];
+	n1 -> n2;
+	n3 [label="", style=invis, width=0.1];
+	n1 -> n3 [style=invis];
+	n4 [label="3", style=filled, fillcolor="#212121", fontcolor=white];
+	n1 -> n4;
+	n0 -> n1;
+	n5 [label="", style=invis, width=0.1];
+	n0 -> n5 [style=invis];
+	n6 [label="6", style=filled, fillcolor="#212121", fontcolor=white];
+	n7 [label="5", style=filled, fillcolor="#212121", fontcolor=white];
+	n6 -> n7;
+	n8 [label="", style=invis, width=0.1];
+	n6 -> n8 [style=invis];
+	n9 [label="8", style=filled, fillcolor="#c62828", fontcolor=white];
+	n10 [label="7", style=filled, fillcolor="#212121", fontcolor=white];
+	n9 -> n10;
+	n11 [label="", style=invis, width=0.1];
+	n9 -> n11 [style=invis];
+	n12 [label="9", style=filled, fillcolor="#212121", fontcolor=white];
+	n13 [label="", style=invis, width=0.6];
+	n12 -> n13 [style=invis];
+	n14 [label="", style=invis, width=0.1];
+	n12 -> n14 [style=invis];
+	n15 [label="10", style=filled, fillcolor="#c62828", fontcolor=white];
+	n12 -> n15;
+	n9 -> n12;
+	n6 -> n9;
+	n0 -> n6;
+}

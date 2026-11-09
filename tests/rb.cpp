@@ -113,4 +113,5 @@ int	main()
 	fancy::tree<rb_node> tree;
 	tree.print_tree(root, fancy::V_VIEW);
 	tree.print_tree(root, fancy::H_VIEW);
+	tree.print_dot(root);
 }

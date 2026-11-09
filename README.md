@@ -101,6 +101,23 @@ And a node with a `bool is_red` member (`tests/rb_bool.cpp`) in the vertical vie
           └──────┘
 ```
 
+### Graphviz (DOT)
+
+For trees too deep for the terminal, or to get a picture, write the tree in [DOT](https://graphviz.org/doc/info/lang.html) and render it with Graphviz (`brew install graphviz` or `apt install graphviz`):
+
+```c++
+std::ofstream file("tree.dot");
+tree.print_dot(root, file);   // or tree.print_dot(root) for std::cout
+```
+
+```sh
+dot -Tpng tree.dot -o tree.png    # or -Tsvg
+```
+
+Values are never cut, a lone child stays on its side, and red-black nodes are filled red or black:
+
+![red-black tree rendered with Graphviz](./assets/dot-sample.png)
+
 ## Output
 
 The tree built in `src/test.cpp`:
@@ -153,10 +170,11 @@ The tree built in `src/test.cpp`:
 
 ```sh
 make test      # builds with -Wall -Wextra -Werror and compares the output with tests/*.txt
+make graphviz  # checks that Graphviz accepts the DOT output (needs dot)
 make example   # builds src/test.cpp
 ```
 
-If you change the drawing on purpose, regenerate the expected output with `make example edge rb rb_bool && ./example > tests/example.txt && ./edge > tests/edge.txt && ./rb > tests/rb.txt && CLICOLOR_FORCE=1 ./rb > tests/rb_colour.txt && ./rb_bool > tests/rb_bool.txt`. Record the gif again with [vhs](https://github.com/charmbracelet/vhs): `vhs assets/sample.tape`.
+If you change the drawing on purpose, regenerate the expected output with `make example edge rb rb_bool dot_export && ./example > tests/example.txt && ./edge > tests/edge.txt && ./rb > tests/rb.txt && CLICOLOR_FORCE=1 ./rb > tests/rb_colour.txt && ./rb_bool > tests/rb_bool.txt && ./dot_export > tests/dot_export.txt`. Record the gif again with [vhs](https://github.com/charmbracelet/vhs): `vhs assets/sample.tape`.
 
 ## License
 
